@@ -6,6 +6,7 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
+  Switch,
 } from 'react-native';
 import {DetailsProps} from '../types';
 
@@ -40,6 +41,8 @@ const Item = ({item, navigation}: DealItem) => (
 
 function AllDeals({navigation}: DetailsProps) {
   const [deals, setDeals] = useState();
+  const [search, setSearch] = useState();
+  const [onSale, setOnSale] = useState('1');
   const fetchData = useCallback(() => {
     fetch('https://www.cheapshark.com/api/1.0/deals')
       .then((response) => response.json())
@@ -58,21 +61,59 @@ function AllDeals({navigation}: DetailsProps) {
     <Item item={item} navigation={navigation} />
   );
 
-  return (
-    <>
-      <View>
-        <TextInput autoFocus placeholder="Search..." />
-      </View>
-      <FlatList
-        data={deals}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.dealID}
-      />
-    </>
-  );
+  const handleSearchInput = (evt) => {
+    setSearch(evt);
+  };
+  if (deals) {
+    return (
+      <>
+        <View style={styles.filterContainer}>
+          <TextInput
+            value={search}
+            onChangeText={handleSearchInput}
+            style={styles.search}
+            placeholder="Search deals by name..."
+          />
+          <View style={styles.switchContainer}>
+            <Text>On Sale </Text>
+            <Switch
+              onValueChange={() => setOnSale(onSale === '1' ? '0' : '1')}
+              value={onSale === '1'}
+            />
+          </View>
+        </View>
+        <FlatList
+          data={deals.filter((deal) => {
+            if (search !== '' && search !== undefined) {
+              return deal.isOnSale === onSale && deal.title.includes(search);
+            }
+            return deal.isOnSale === onSale;
+          })}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.dealID}
+        />
+      </>
+    );
+  }
+  return <Text>Loading...</Text>;
 }
 
 const styles = StyleSheet.create({
+  filterContainer: {
+    backgroundColor: '#FBFBFB',
+    margin: 10,
+    padding: 10,
+  },
+  switchContainer: {
+    marginTop: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  search: {
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#DBE2EA',
+  },
   item: {
     backgroundColor: '#FBFBFB',
     padding: 20,

@@ -1,27 +1,48 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Text, View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {
+  Text,
+  View,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ScrollView
+} from 'react-native';
 import {DetailsProps} from '../types';
 
 function Details({route, navigation}: DetailsProps) {
   const {dealID} = route.params;
   const [deal, setDeal] = useState();
-  const fetchData = useCallback(() => {
+  const [stores, setStores] = useState();
+  const fetchDeal = useCallback(() => {
     fetch(`https://www.cheapshark.com/api/1.0/deals?id=${dealID}`)
       .then((response) => response.json())
       .then((json) => {
-        console.log(json);
         setDeal(json);
       })
       .catch((error) => {
         console.error(error);
       });
   }, [dealID]);
+
+  const fetchStores = useCallback(() => {
+    fetch('https://www.cheapshark.com/api/1.0/stores')
+      .then((response) => response.json())
+      .then((json) => {
+        console.log(json);
+        setStores(json);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchStores();
+    fetchDeal();
+  }, [fetchDeal, fetchStores]);
   if (deal) {
     return (
-      <View style={styles.root}>
+      <ScrollView style={styles.root}>
         <Text style={styles.title}>{deal.gameInfo.name}</Text>
         <View style={styles.priceContainer}>
           <Text style={[styles.normalPrice, styles.onSale]}>
@@ -33,6 +54,13 @@ function Details({route, navigation}: DetailsProps) {
           You save $
           {(deal.gameInfo.retailPrice - deal.gameInfo.salePrice).toFixed(2)}
         </Text>
+        <Text style={styles.blockTitle}>
+          Available at{' '}
+          {
+            stores.find((store) => store.storeID == deal.gameInfo.storeID)
+              .storeName
+          }
+        </Text>
         <View>
           <Image
             style={styles.thumb}
@@ -40,12 +68,17 @@ function Details({route, navigation}: DetailsProps) {
             resizeMode="contain"
           />
         </View>
-        <Text style={styles.otherDealsTitle}>Other Deals For This Game</Text>
+        <Text style={styles.blockTitle}>Other Deals For This Game</Text>
         {deal.cheaperStores.map((cheaper) => {
           return (
-            <View style={styles.cheaperContainer}>
+            <View style={styles.cheaperContainer} key={cheaper.dealID}>
               <View>
-                <Text>{cheaper.storeID}</Text>
+                <Text>
+                  {
+                    stores.find((store) => store.storeID == cheaper.storeID)
+                      .storeName
+                  }
+                </Text>
                 <Text style={styles.specialPrice}>${cheaper.salePrice}</Text>
               </View>
               <View>
@@ -59,7 +92,7 @@ function Details({route, navigation}: DetailsProps) {
             </View>
           );
         })}
-      </View>
+      </ScrollView>
     );
   }
   return <Text>Loading...</Text>;
@@ -81,7 +114,6 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   priceContainer: {
-    // marginBottom: 40,
     flexDirection: 'row',
   },
   onSale: {
@@ -96,17 +128,22 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   thumb: {
+    marginVertical: 20,
     height: 250,
   },
-  otherDealsTitle: {
+  blockTitle: {
+    marginVertical: 20,
     backgroundColor: '#F8F8F8',
     padding: 20,
     fontSize: 28,
     fontWeight: '500',
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   cheaperContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 40,
   },
   button: {
     paddingTop: 20,
