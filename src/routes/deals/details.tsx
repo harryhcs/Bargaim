@@ -5,14 +5,38 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  ScrollView
+  ScrollView,
 } from 'react-native';
 import {DetailsProps} from '../types';
 
+interface CheaperStores {
+  dealID: string;
+  storeID: string;
+  salePrice: number;
+}
+
+interface GameInfo {
+  name: string;
+  retailPrice: number;
+  salePrice: number;
+  thumb: string;
+  storeID: string;
+}
+
+interface Store {
+  storeID: string;
+  storeName: string;
+}
+
+interface Deal {
+  gameInfo: GameInfo;
+  cheaperStores: CheaperStores[];
+}
+
 function Details({route, navigation}: DetailsProps) {
   const {dealID} = route.params;
-  const [deal, setDeal] = useState();
-  const [stores, setStores] = useState();
+  const [deal, setDeal] = useState<Deal>();
+  const [stores, setStores] = useState([]);
   const fetchDeal = useCallback(() => {
     fetch(`https://www.cheapshark.com/api/1.0/deals?id=${dealID}`)
       .then((response) => response.json())
@@ -40,7 +64,10 @@ function Details({route, navigation}: DetailsProps) {
     fetchStores();
     fetchDeal();
   }, [fetchDeal, fetchStores]);
-  if (deal) {
+  if (deal && stores.length) {
+    const findStore: Store = stores.find(
+      (store: Store) => store.storeID === deal.gameInfo.storeID,
+    ) ?? {storeID: '0', storeName: 'null'};
     return (
       <ScrollView style={styles.root}>
         <Text style={styles.title}>{deal.gameInfo.name}</Text>
@@ -54,13 +81,11 @@ function Details({route, navigation}: DetailsProps) {
           You save $
           {(deal.gameInfo.retailPrice - deal.gameInfo.salePrice).toFixed(2)}
         </Text>
-        <Text style={styles.blockTitle}>
-          Available at{' '}
-          {
-            stores.find((store) => store.storeID == deal.gameInfo.storeID)
-              .storeName
-          }
-        </Text>
+        {findStore.storeID !== '0' ? (
+          <Text style={styles.blockTitle}>
+            Available at {findStore.storeName}
+          </Text>
+        ) : null}
         <View>
           <Image
             style={styles.thumb}
@@ -69,16 +94,18 @@ function Details({route, navigation}: DetailsProps) {
           />
         </View>
         <Text style={styles.blockTitle}>Other Deals For This Game</Text>
-        {deal.cheaperStores.map((cheaper) => {
+        {deal.cheaperStores.map((cheaper: CheaperStores) => {
+          const findCheaperStore: Store = stores.find(
+            (store: Store) => store.storeID === deal.gameInfo.storeID,
+          ) ?? {storeID: '0', storeName: 'null'};
           return (
             <View style={styles.cheaperContainer} key={cheaper.dealID}>
               <View>
-                <Text>
-                  {
-                    stores.find((store) => store.storeID == cheaper.storeID)
-                      .storeName
-                  }
-                </Text>
+                {findCheaperStore.storeID !== '0' ? (
+                  <Text style={styles.blockTitle}>
+                    Available at {findStore.storeName}
+                  </Text>
+                ) : null}
                 <Text style={styles.specialPrice}>${cheaper.salePrice}</Text>
               </View>
               <View>

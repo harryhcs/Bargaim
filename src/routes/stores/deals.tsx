@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Switch,
 } from 'react-native';
-import {DetailsProps} from '../types';
+import {StoreProps} from '../types';
 
 interface Item {
   title: string;
@@ -47,12 +47,13 @@ const Item = ({item, navigation}: DealItem) => (
   </View>
 );
 
-function AllDeals({navigation}: DetailsProps) {
+function StoreDeals({navigation, route}: StoreProps) {
+  const {storeID} = route.params;
   const [deals, setDeals] = useState([]);
   const [search, setSearch] = useState<string>('');
   const [onSale, setOnSale] = useState('1');
   const fetchData = useCallback(() => {
-    fetch('https://www.cheapshark.com/api/1.0/deals')
+    fetch(`https://www.cheapshark.com/api/1.0/deals?storeID=${storeID}`)
       .then((response) => response.json())
       .then((json) => {
         setDeals(json);
@@ -60,21 +61,18 @@ function AllDeals({navigation}: DetailsProps) {
       .catch((error) => {
         console.error(error);
       });
-  }, []);
+  }, [storeID]);
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  const handleSearchInput = (evt: string) => {
-    setSearch(evt);
-  };
   if (deals.length) {
     return (
       <>
         <View style={styles.filterContainer}>
           <TextInput
             value={search}
-            onChangeText={handleSearchInput}
+            onChangeText={(evt) => setSearch(evt)}
             style={styles.search}
             placeholder="Search deals by name..."
           />
@@ -155,4 +153,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AllDeals;
+export default StoreDeals;

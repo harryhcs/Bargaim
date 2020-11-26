@@ -10,19 +10,29 @@ import {
 } from 'react-native';
 import {DetailsProps} from '../types';
 
+interface StoreImage {
+  logo: string;
+}
+
+interface Item {
+  storeName: string;
+  storeID: string;
+  isActive: number;
+  images: StoreImage;
+}
+
 interface DealItem {
-  item: any;
+  item: Item;
   navigation: any;
 }
 
 const Item = ({item, navigation}: DealItem) => {
-  const [deals, setDeals] = useState();
+  const [deals, setDeals] = useState([]);
 
   const fetchData = useCallback(() => {
     fetch(`https://www.cheapshark.com/api/1.0/deals?storeID=${item.storeID}`)
       .then((response) => response.json())
       .then((json) => {
-        console.log(json.length)
         setDeals(json);
       })
       .catch((error) => {
@@ -44,9 +54,12 @@ const Item = ({item, navigation}: DealItem) => {
         <Text style={styles.title}>{item.storeName}</Text>
       </View>
       <View style={styles.priceContainer}>
-        <Text>55 Deals</Text>
+        <Text>{deals.length === 60 ? '60+' : deals.length} Deals</Text>
       </View>
-      <TouchableOpacity>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('StoreDeals', {storeID: item.storeID})
+        }>
         <Text style={styles.button}>View More</Text>
       </TouchableOpacity>
     </View>
@@ -54,8 +67,8 @@ const Item = ({item, navigation}: DealItem) => {
 };
 
 function Stores({navigation}: DetailsProps) {
-  const [stores, setStores] = useState();
-  const [search, setSearch] = useState();
+  const [stores, setStores] = useState([]);
+  const [search, setSearch] = useState<string>('');
   const fetchData = useCallback(() => {
     fetch('https://www.cheapshark.com/api/1.0/stores')
       .then((response) => response.json())
@@ -70,14 +83,10 @@ function Stores({navigation}: DetailsProps) {
     fetchData();
   }, [fetchData]);
 
-  const renderItem = ({item}: DealItem) => (
-    <Item item={item} navigation={navigation} />
-  );
-
-  const handleSearchInput = (evt) => {
+  const handleSearchInput = (evt: string) => {
     setSearch(evt);
   };
-  if (stores) {
+  if (stores.length) {
     return (
       <>
         <View style={styles.filterContainer}>
@@ -88,14 +97,16 @@ function Stores({navigation}: DetailsProps) {
             placeholder="Search stores by name..."
           />
         </View>
-        <FlatList
-          data={stores.filter((store) => {
+        <FlatList<Item>
+          data={stores.filter((store: Item) => {
             if (search !== '' && search !== undefined) {
-              return store.name.includes(search);
+              return store.isActive === 1 && store.storeName.includes(search);
             }
-            return stores;
+            return store.isActive === 1;
           })}
-          renderItem={renderItem}
+          renderItem={(item) => (
+            <Item item={item.item} navigation={navigation} />
+          )}
           keyExtractor={(item) => item.storeID}
         />
       </>

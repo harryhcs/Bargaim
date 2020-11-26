@@ -3,14 +3,15 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
-import {DetailsStackParamList} from './types';
+import {DealsStackParamList, StoreStackParamList} from './types';
 import DealsScreen from './deals/all';
 import DetailScreen from './deals/details';
 import StoresScreen from './stores';
+import StoreDealsScreen from './stores/deals';
 
 const Tab = createBottomTabNavigator();
 const DealsStack = createStackNavigator<DealsStackParamList>();
-const StoreStack = createStackNavigator<DealsStackParamList>();
+const StoreStack = createStackNavigator<StoreStackParamList>();
 
 const DetailsStackNavigator = () => (
   <DealsStack.Navigator>
@@ -19,11 +20,7 @@ const DetailsStackNavigator = () => (
       component={DealsScreen}
       options={{title: 'The Best Deals'}}
     />
-    <DealsStack.Screen
-      name="Details"
-      component={DetailScreen}
-      initialParams={{dealID: '1'}}
-    />
+    <DealsStack.Screen name="Details" component={DetailScreen} />
   </DealsStack.Navigator>
 );
 
@@ -34,11 +31,7 @@ const StoreStackNavigator = () => (
       component={StoresScreen}
       options={{title: 'Stores'}}
     />
-    {/* <StoreStack.Screen
-      name="Details"
-      component={DetailScreen}
-      initialParams={{dealID: '1'}}
-    /> */}
+    <StoreStack.Screen name="StoreDeals" component={StoreDealsScreen} />
   </StoreStack.Navigator>
 );
 
