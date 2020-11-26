@@ -13,6 +13,8 @@ interface CheaperStores {
   dealID: string;
   storeID: string;
   salePrice: number;
+  name: string;
+  retailPrice: number;
 }
 
 interface GameInfo {
@@ -96,17 +98,20 @@ function Details({route, navigation}: DetailsProps) {
         <Text style={styles.blockTitle}>Other Deals For This Game</Text>
         {deal.cheaperStores.map((cheaper: CheaperStores) => {
           const findCheaperStore: Store = stores.find(
-            (store: Store) => store.storeID === deal.gameInfo.storeID,
-          ) ?? {storeID: '0', storeName: 'null'};
+            (store: Store) => store.storeID === cheaper.storeID,
+          ) ?? {storeID: '', storeName: ''};
           return (
             <View style={styles.cheaperContainer} key={cheaper.dealID}>
               <View>
-                {findCheaperStore.storeID !== '0' ? (
-                  <Text style={styles.blockTitle}>
-                    Available at {findStore.storeName}
-                  </Text>
+                {findCheaperStore.storeID !== '' ? (
+                  <Text style={styles.title}>{findCheaperStore.storeName}</Text>
                 ) : null}
-                <Text style={styles.specialPrice}>${cheaper.salePrice}</Text>
+                <View style={styles.priceContainer}>
+                  <Text style={[styles.normalPrice, styles.onSale]}>
+                    ${cheaper.retailPrice}{' '}
+                  </Text>
+                  <Text style={styles.specialPrice}>${cheaper.salePrice}</Text>
+                </View>
               </View>
               <View>
                 <TouchableOpacity

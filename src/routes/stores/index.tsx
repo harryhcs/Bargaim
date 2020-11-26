@@ -47,7 +47,7 @@ const Item = ({item, navigation}: DealItem) => {
     <View style={styles.item}>
       <Image
         style={styles.banner}
-        resizeMode="center"
+        resizeMode="contain"
         source={{uri: `https://www.cheapshark.com${item.images.logo}`}}
       />
       <View>
@@ -104,9 +104,8 @@ function Stores({navigation}: DetailsProps) {
             }
             return store.isActive === 1;
           })}
-          renderItem={(item) => (
-            <Item item={item.item} navigation={navigation} />
-          )}
+          renderItem={({item}) => <Item item={item} navigation={navigation} />}
+          numColumns={3}
           keyExtractor={(item) => item.storeID}
         />
       </>
@@ -117,7 +116,7 @@ function Stores({navigation}: DetailsProps) {
 
 const styles = StyleSheet.create({
   banner: {
-    height: 150,
+    height: 50,
     // justifyContent: 'center',
   },
   filterContainer: {
@@ -131,13 +130,17 @@ const styles = StyleSheet.create({
     borderColor: '#DBE2EA',
   },
   item: {
-    backgroundColor: '#FBFBFB',
-    padding: 20,
+    flex: 1,
+    flexDirection: 'column',
+    justifyContent: 'space-evenly',
     margin: 10,
+    backgroundColor: '#FBFBFB',
+    padding: 10,
     borderRadius: 10,
+    overflow: 'hidden',
   },
   title: {
-    fontSize: 28,
+    fontSize: 18,
     fontWeight: '700',
     marginBottom: 15,
   },
@@ -154,14 +157,11 @@ const styles = StyleSheet.create({
     color: '#50A892',
   },
   button: {
-    paddingTop: 20,
-    paddingBottom: 20,
-    paddingLeft: 40,
-    paddingRight: 40,
+    textAlign: 'center',
+    padding: 5,
     borderColor: '#2C2738',
     borderWidth: 1,
     borderRadius: 6,
-    width: 160,
     justifyContent: 'center',
   },
 });
