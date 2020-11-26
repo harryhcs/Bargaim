@@ -18,7 +18,7 @@ const DetailsStackNavigator = () => (
     <DealsStack.Screen
       name="Deals"
       component={DealsScreen}
-      options={{title: 'The Best Deals'}}
+      options={{title: 'Deals'}}
     />
     <DealsStack.Screen name="Details" component={DetailScreen} />
   </DealsStack.Navigator>
