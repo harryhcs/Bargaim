@@ -31,7 +31,11 @@ const StoreStackNavigator = () => (
       component={StoresScreen}
       options={{title: 'Stores'}}
     />
-    <StoreStack.Screen name="StoreDeals" component={StoreDealsScreen} />
+    <StoreStack.Screen
+      name="StoreDeals"
+      options={{title: 'Store Deals'}}
+      component={StoreDealsScreen}
+    />
   </StoreStack.Navigator>
 );
 

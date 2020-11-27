@@ -160,8 +160,8 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   thumb: {
-    marginVertical: 20,
-    height: 250,
+    marginVertical: 10,
+    height: 200,
   },
   blockTitle: {
     marginVertical: 20,

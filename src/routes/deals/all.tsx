@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   TextInput,
   Text,
@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Switch,
 } from 'react-native';
+import axios from 'axios';
+
 import {DetailsProps} from '../types';
 
 interface Item {
@@ -48,22 +50,21 @@ const Item = ({item, navigation}: DealItem) => (
 );
 
 function AllDeals({navigation}: DetailsProps) {
-  const [deals, setDeals] = useState([]);
+  const [deals, setDeals] = React.useState([]);
   const [search, setSearch] = useState<string>('');
   const [onSale, setOnSale] = useState('1');
-  const fetchData = useCallback(() => {
-    fetch('https://www.cheapshark.com/api/1.0/deals')
-      .then((response) => response.json())
-      .then((json) => {
-        setDeals(json);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, []);
+
+  const getDeals = async () => {
+    const response = await axios.get(
+      'https://www.cheapshark.com/api/1.0/deals',
+    );
+    const data = await response.data;
+    setDeals(data);
+  };
+
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    getDeals();
+  }, []);
 
   const handleSearchInput = (evt: string) => {
     setSearch(evt);
